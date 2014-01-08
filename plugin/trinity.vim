@@ -50,10 +50,10 @@ endif
 command! -nargs=0 -bar TrinityToggleAll
     \ call <SID>Trinity_Toggle()
 
-" User interface for switching the TagList
+" User interface for switching the Tagbar
 
-command! -nargs=0 -bar TrinityToggleTagList
-    \ call <SID>Trinity_ToggleTagList()
+command! -nargs=0 -bar TrinityToggleTagbar
+    \ call <SID>Trinity_ToggleTagbar()
 
 " User interface for switching the Source Explorer
 
@@ -80,8 +80,8 @@ let s:Trinity_tabPage        = 0
 let s:Trinity_isDebug        = 0
 let s:Trinity_logPath        = '~/trinity.log'
 
-let s:tag_list_switch        = 0
-let s:tag_list_title         = "__Tag_List__"
+let s:tagbar_switch        = 0
+let s:tagbar_title         = "__Tagbar__"
 
 let s:nerd_tree_switch       = 0
 let s:nerd_tree_title        = "_NERD_tree_"
@@ -91,26 +91,29 @@ let s:source_explorer_title  = "Source_Explorer"
 
 " }}}
 
-" Trinity_InitTagList() {{{
+" Trinity_InitTagbar() {{{
 
-" Initialize the parameters of the 'TagList' plugin
+" Initialize the parameters of the 'TagBar' plugin
 
-function! <SID>Trinity_InitTagList()
+function! <SID>Trinity_InitTagbar()
 
-    " Split to the right side of the screen
-    let g:Tlist_Use_Left_Window = 1
+    " Split to the left side of the screen
+    let g:tagbar_left = 1
     " Set the window width
-    let g:Tlist_WinWidth = 40
-    " Sort by the order
-    let g:Tlist_Sort_Type = "order"
-    " Do not display the help info
-    let g:Tlist_Compact_Format = 1
+    let g:tagbar_width = 30
+    " Sort by file order
+    let g:tagbar_sort = 1
+    " Use compact view to save screen real estate
+    let g:tagbar_compact = 1
+    " Auto open a closed fold if the current tag is in it
+    let g:tagbar_autoshowtag = 1
+
     " If you are the last, kill yourself
-    let g:Tlist_Exit_OnlyWindow = 1
+    "let g:Tlist_Exit_OnlyWindow = 1
     " Do not close tags for other files
-    let g:Tlist_File_Fold_Auto_Close = 1
+    "let g:Tlist_File_Fold_Auto_Close = 1
     " Do not show folding tree
-    let g:Tlist_Enable_Fold_Column = 0
+    "let g:Tlist_Enable_Fold_Column = 0
     " Always display one file tags
     let g:Tlist_Show_One_File = 1
 
@@ -138,7 +141,7 @@ function! <SID>Trinity_InitSourceExplorer()
     " // are using buffers. And you need add their bufname into the list below     "
     " // according to the command ":buffers!"                                      "
     let g:SrcExpl_pluginList = [
-        \ s:tag_list_title,
+        \ s:tagbar_title,
         \ s:nerd_tree_title,
         \ s:source_explorer_title
     \ ]
@@ -208,7 +211,7 @@ function! <SID>Trinity_GetEditWin()
 
     let l:srcexplWin = 0
     let l:pluginList = [
-            \ s:tag_list_title,
+            \ s:tagbar_title,
             \ s:source_explorer_title,
             \ s:nerd_tree_title
         \]
@@ -294,13 +297,13 @@ endfunction " }}}
 
 function! <SID>Trinity_UpdateStatus()
 
-    if s:tag_list_switch == 1 ||
+    if s:tagbar_switch == 1 ||
         \ s:source_explorer_switch == 1 ||
     \ s:nerd_tree_switch == 1
         let s:Trinity_switch = 1
     endif
 
-    if s:tag_list_switch == 0 &&
+    if s:tagbar_switch == 0 &&
         \ s:source_explorer_switch == 0 &&
     \ s:nerd_tree_switch == 0
         let s:Trinity_switch = 0
@@ -394,11 +397,11 @@ function! <SID>Trinity_ToggleSourceExplorer()
 
 endfunction " }}}
 
-" Trinity_ToggleTagList() {{{
+" Trinity_ToggleTagbar() {{{
 
-" The User Interface function to open / close the TagList
+" The User Interface function to open / close the Tagbar
 
-function! <SID>Trinity_ToggleTagList()
+function! <SID>Trinity_ToggleTagbar()
 
     if s:Trinity_tabPage == 0
         let s:Trinity_tabPage = tabpagenr()
@@ -411,19 +414,19 @@ function! <SID>Trinity_ToggleTagList()
     endif
     call <SID>Trinity_UpdateStatus()
     if s:Trinity_switch == 0
-        if s:tag_list_switch == 0
-            call <SID>Trinity_InitTagList()
-            Tlist
-            let s:tag_list_switch = 1
+        if s:tagbar_switch == 0
+            call <SID>Trinity_InitTagbar()
+            TagbarOpen
+            let s:tagbar_switch = 1
         endif
     else
-        if s:tag_list_switch == 1
-            TlistClose
-            let s:tag_list_switch = 0
+        if s:tagbar_switch == 1
+            TagbarClose
+            let s:tagbar_switch = 0
         else
-            call <SID>Trinity_InitTagList()
-            Tlist
-            let s:tag_list_switch = 1
+            call <SID>Trinity_InitTagbar()
+            TagbarOpen
+            let s:tagbar_switch = 1
         endif
     endif
 
@@ -439,7 +442,7 @@ endfunction " }}}
 " Trinity_Toggle() {{{
 
 " The User Interface function to open / close the Trinity of
-" TagList, Source Explorer and NERD tree
+" Tagbar, Source Explorer and NERD tree
 
 function! <SID>Trinity_Toggle()
 
@@ -455,9 +458,9 @@ function! <SID>Trinity_Toggle()
     endif
 
     if s:Trinity_switch == 1
-        if s:tag_list_switch == 1
-            TlistClose
-            let s:tag_list_switch = 0
+        if s:tagbar_switch == 1
+            TagbarClose
+            let s:tagbar_switch = 0
         endif
         if s:source_explorer_switch == 1
             SrcExplClose
@@ -470,9 +473,9 @@ function! <SID>Trinity_Toggle()
         let s:Trinity_switch = 0
         let s:Trinity_tabPage = 0
     else
-        call <SID>Trinity_InitTagList()
-        Tlist
-        let s:tag_list_switch = 1
+        call <SID>Trinity_InitTagbar()
+        TagbarOpen
+        let s:tagbar_switch = 1
         call <SID>Trinity_InitSourceExplorer()
         SrcExpl
         let s:source_explorer_switch = 1
