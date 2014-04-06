@@ -88,7 +88,11 @@ let s:nerd_tree_title        = "_NERD_tree_"
 
 let s:source_explorer_switch = 0
 let s:source_explorer_title  = "Source_Explorer"
-
+let s:pluginList = [
+        \ s:tagbar_title,
+	\ s:source_explorer_title,
+        \ s:nerd_tree_title
+    \]
 " }}}
 
 " Trinity_InitTagbar() {{{
@@ -115,7 +119,7 @@ function! <SID>Trinity_InitTagbar()
     " Do not show folding tree
     "let g:Tlist_Enable_Fold_Column = 0
     " Always display one file tags
-    let g:Tlist_Show_One_File = 1
+    "let g:Tlist_Show_One_File = 1
 
 endfunction " }}}
 
@@ -207,43 +211,29 @@ endfunction " }}}
 function! <SID>Trinity_GetEditWin()
 
     let l:i = 1
-    let l:j = 1
 
-    let l:srcexplWin = 0
-    let l:pluginList = [
-            \ s:tagbar_title,
-            \ s:source_explorer_title,
-            \ s:nerd_tree_title
-        \]
+    while 1
+        " use for flaging whether window not in plugin list is found or not.
+        let l:found = 1
 
-    try
-        let l:srcexplWin = g:SrcExpl_GetWin()
-    catch
-    finally
-        while 1
-            " compatible for Named Buffer Version and Preview Window Version
-            for item in l:pluginList
-                if (bufname(winbufnr(l:i)) ==# item)
-                \ || (l:srcexplWin == 0 && getwinvar(l:i, '&previewwindow'))
-                \ || (l:srcexplWin == l:i)
-                    break
-                else
-                    let l:j += 1
-                endif
-            endfor
-
-            if l:j >= len(l:pluginList)
-                return l:i
-            else
-                let l:i += 1
-                let l:j = 0
+        " compatible for Named Buffer Version and Preview Window Version
+        for item in s:pluginList
+            if (bufname(winbufnr(l:i)) ==# item)
+                let l:found = 0
+                break
             endif
+        endfor
 
-            if l:i > winnr("$")
-                return -1
-            endif
-        endwhile
-    endtry
+        if l:found == 1
+            return l:i
+        else
+            let l:i += 1
+        endif
+
+        if l:i > winnr("$")
+            return -1
+        endif
+    endwhile
 
 endfunction " }}}
 
